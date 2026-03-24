@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Year 12 BTEC IT Revision</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:white;
+margin:0;
+text-align:center;
+}
+
+header{
+background:linear-gradient(90deg,#2ecc71,#8e44ad);
+color:white;
+padding:20px;
+font-size:28px;
+font-weight:bold;
+}
+
+.container{
+max-width:750px;
+margin:auto;
+padding:30px;
+}
+
+.score{
+font-size:20px;
+margin-bottom:10px;
+}
+
+.progress{
+font-size:16px;
+margin-bottom:20px;
+color:#666;
+}
+
+select{
+padding:10px;
+font-size:16px;
+border-radius:8px;
+border:2px solid #2ecc71;
+margin-bottom:20px;
+}
+
+.question{
+font-size:22px;
+margin:20px 0;
+color:black;
+}
+
+.option{
+display:block;
+width:100%;
+margin:10px 0;
+padding:14px;
+font-size:16px;
+border-radius:10px;
+border:2px solid #8e44ad;
+background:white;
+color:black;
+cursor:pointer;
+}
+
+.option:hover{
+background:#f4ecff;
+}
+
+.correct{
+background:#c8f7c5 !important;
+border-color:#2ecc71 !important;
+}
+
+.wrong{
+background:#ffd6d6 !important;
+border-color:red !important;
+}
+
+button{
+padding:12px 22px;
+font-size:16px;
+margin-top:15px;
+border-radius:10px;
+border:none;
+background:#2ecc71;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+Year 12 BTEC IT Revision Quiz
+</header>
+
+<div class="container">
+
+<div class="score">
+Score: <span id="score">0</span>
+</div>
+
+<div class="progress">
+Remaining Questions: <span id="remaining">0</span>
+</div>
+
+<select id="topicFilter">
+<option value="all">All Packs</option>
+<option value="packA">Pack A - Digital Devices</option>
+<option value="packB">Pack B - Transmitting Data</option>
+<option value="packC">Pack C - Operating Online</option>
+<option value="packD">Pack D - Protecting Data</option>
+<option value="packE">Pack E - Impact of IT Systems</option>
+<option value="packF">Pack F - Issues</option>
+</select>
+
+<div class="question" id="question"></div>
+
+<div id="answers"></div>
+
+<button onclick="nextQuestion()">Next</button>
+<button onclick="restartQuiz()">Restart</button>
+
+</div>
+
+<script>
+
+/* ==========================
+QUESTION BANK
+========================== */
+
+const questions = [
+
+/* ADD YOUR BTEC QUESTIONS HERE USING:
+topic:"packA", "packB", etc */
+
+];
+
+/* ======================
+QUIZ ENGINE
+====================== */
+
+let pool=[];
+let score=0;
+let current;
+
+const qEl=document.getElementById("question");
+const aEl=document.getElementById("answers");
+const scoreEl=document.getElementById("score");
+const remainEl=document.getElementById("remaining");
+const filter=document.getElementById("topicFilter");
+
+filter.addEventListener("change",startQuiz);
+
+function startQuiz(){
+    let topic=filter.value;
+
+    pool=questions
+        .filter(q=>topic==="all"||q.topic===topic)
+        .map(q=>({...q,answered:false}));
+
+    score=0;
+    scoreEl.innerText=score;
+
+    nextQuestion();
+}
+
+function nextQuestion(){
+
+    if(pool.length===0){
+        qEl.innerText="All questions answered correctly! 🎉";
+        aEl.innerHTML="";
+        remainEl.innerText=0;
+        return;
+    }
+
+    current=pool[Math.floor(Math.random()*pool.length)];
+    qEl.innerText=current.q;
+    aEl.innerHTML="";
+    remainEl.innerText=pool.length;
+
+    let answers=current.o.map((text,index)=>({
+        text:text,
+        correct:index===current.a
+    }));
+
+    answers.sort(()=>Math.random()-0.5);
+
+    answers.forEach(ans=>{
+        let btn=document.createElement("button");
+        btn.className="option";
+        btn.innerText=ans.text;
+        btn.onclick=()=>answer(ans.correct,btn);
+        aEl.appendChild(btn);
+    });
+}
+
+function answer(correct,btn){
+    let buttons=document.querySelectorAll(".option");
+    buttons.forEach(b=>b.disabled=true);
+
+    if(correct){
+        btn.classList.add("correct");
+        score++;
+        scoreEl.innerText=score;
+        pool=pool.filter(q=>q!==current);
+    } else{
+        btn.classList.add("wrong");
+        buttons.forEach(b=>{
+            if(b.onclick.toString().includes("true")){
+                b.classList.add("correct");
+            }
+        });
+    }
+}
+
+function restartQuiz(){
+    startQuiz();
+}
+
+startQuiz();
+
+</script>
+
+</body>
+</html>
